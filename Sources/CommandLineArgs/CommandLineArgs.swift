@@ -41,7 +41,7 @@ public class CommandLineArgs {
     }
 
     public func run(_ arguments: [String]) throws {
-        if let command = self.commands.first(where: {
+        if arguments.count > 0, let command = self.commands.first(where: {
             if $0.definition.name == arguments[0] {
                 return true
             }
