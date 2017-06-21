@@ -2,47 +2,53 @@ import Foundation
 
 public class CommandLineArgs {
 
-    private var definitions: [CommandDefinition]
-    private var `default`: CommandDefinition?
-    private var commands: [String: Command]
+    private var commands: [Command]
+    private var main: Command?
 
     public init() {
-        self.definitions = []
-        self.commands = [:]
+        self.commands = []
     }
 
     @discardableResult
-    public func `default`(definition: CommandDefinition, command: Command? = nil) -> Self {
-        self.default = definition
-        self.commands[definition.name] = command
+    public func main(command: Command) -> Self {
+        self.main = command
         return self
     }
 
     @discardableResult
-    public func set(definition: CommandDefinition, command: Command? = nil) -> Self {
-        if let idx = self.definitions.index(where: { $0.name == definition.name }) {
-            self.definitions.remove(at: idx)
-            self.definitions.insert(definition, at: idx)
+    public func main(definition: CommandDefinition, handler: @escaping CommandHandler) -> Self {
+        return self.main(command: CommandWrapper(definition: definition, handler: handler))
+    }
+
+    @discardableResult
+    public func register(command: Command) -> Self {
+        if let idx = self.commands.index(where: { $0.definition.name == command.definition.name }) {
+            self.commands.remove(at: idx)
+            self.commands.insert(command, at: idx)
         } else {
-            self.definitions.append(definition)
+            self.commands.append(command)
         }
-        self.commands[definition.name] = command
         return self
     }
 
-    public func parse(_ arguments: [String]) throws -> (Command?, [String: Any]) {
-        var res: (Command?, [String: Any]) = (nil, [:])
-        if let definition = self.definitions.first(where: {
-            if $0.name == arguments[0] {
+    @discardableResult
+    public func register(definition: CommandDefinition, handler: @escaping CommandHandler) -> Self {
+        return self.register(command: CommandWrapper(definition: definition, handler: handler))
+    }
+
+    public func run(_ arguments: [String]) throws {
+        if let command = self.commands.first(where: {
+            if $0.definition.name == arguments[0] {
                 return true
             }
-            if let aliases = $0.aliases {
+            if let aliases = $0.definition.aliases {
                 return aliases.index(of: arguments[0]) != nil
             }
             return false
-        }) ?? self.default {
-            res.0 = self.commands[definition.name]
+        }) ?? self.main {
+            let definition = command.definition
             var current: OptionDefinition? = nil
+            var res: [String: Any] = [:]
             for idx in 1..<arguments.count {
                 let arg = arguments[idx]
                 let count = arg.count
@@ -53,40 +59,43 @@ public class CommandLineArgs {
                         if count > 1 {
                             let secondIndex = arg.index(after: startIndex)
                             if arg[secondIndex] == "-" {
-                                self.parse(verbose: arg.substring(from: arg.index(after: secondIndex)), output: &res.1, cmd: definition, current: &current)
+                                self.parse(verbose: arg.substring(from: arg.index(after: secondIndex)), output: &res, cmd: definition, current: &current)
                                 continue
                             }
                         }
-                        self.parse(alias: arg.substring(from: arg.index(after: startIndex)), output: &res.1, cmd: definition, current: &current)
+                        self.parse(alias: arg.substring(from: arg.index(after: startIndex)), output: &res, cmd: definition, current: &current)
                         continue
                     }
-                    if let opt = current ?? definition.default {
+                    if let opt = current ?? definition.main {
                         let data = CommandLineArgs.convert(argument: arg, type: opt.type)
                         if opt.isMultiple {
-                            var arr = res.1[opt.name] as? Array<Any> ?? []
+                            var arr = res[opt.name] as? Array<Any> ?? []
                             arr.append(data)
-                            res.1[opt.name] = arr
+                            res[opt.name] = arr
                         } else {
-                            res.1[opt.name] = data
+                            res[opt.name] = data
+                            current = nil
                         }
                     }
                 }
             }
             let checkArguments = { (option: OptionDefinition) in
-                if res.1[option.name] == nil {
+                if res[option.name] == nil {
                     if option.defaultValue != nil {
-                        res.1[option.name] = option.defaultValue
+                        res[option.name] = option.defaultValue
                     } else if option.isRequired {
                         throw CommandLineError.missingRequiredArgument
                     }
                 }
             }
-            if let d = definition.default {
+            if let d = definition.main {
                 try checkArguments(d)
             }
             try definition.definitions?.forEach(checkArguments)
+            try command.run(res)
+        } else {
+            throw CommandLineError.commandNotFound
         }
-        return res
     }
 
     private static func convert(argument: String, type: OptionDefinition.DataType) -> Any {

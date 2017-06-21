@@ -10,8 +10,10 @@ import Foundation
 class CommandWrapper: Command {
 
     private let handler: CommandHandler
+    public let definition: CommandDefinition
 
-    public init(handler: @escaping CommandHandler) {
+    public init(definition: CommandDefinition, handler: @escaping CommandHandler) {
+        self.definition = definition
         self.handler = handler
     }
 

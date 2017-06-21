@@ -1,5 +1,5 @@
 //
-//  CommandHandler.swift
+//  Command.swift
 //  CommandLineArgs
 //
 //  Created by Benoit BRIATTE on 19/06/2017.
@@ -12,5 +12,7 @@ public typealias CommandHandler = ([String: Any]) throws -> ()
 public protocol Command {
 
     func run(_ arguments: [String: Any]) throws
+
+    var definition: CommandDefinition { get }
 
 }

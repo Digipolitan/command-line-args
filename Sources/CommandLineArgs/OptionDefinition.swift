@@ -1,6 +1,6 @@
 //
-//  Option.swift
-//  CommandLineArgsTests
+//  OptionDefinition.swift
+//  CommandLineArgs
 //
 //  Created by Benoit BRIATTE on 19/06/2017.
 //

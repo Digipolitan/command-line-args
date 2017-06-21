@@ -3,6 +3,10 @@ import XCTest
 
 class T: Command {
 
+    lazy var definition: CommandDefinition = {
+        return CommandDefinition(name: "use", main: OptionDefinition(name: "file", type: .string, defaultValue: "polymorph.json"))
+    }()
+
     func run(_ arguments: [String : Any]) throws {
         print("SUCCESS")
         print(arguments)
@@ -13,15 +17,9 @@ class CommandLineArgsTests: XCTestCase {
     func testExample() {
 
         let cla = CommandLineArgs()
-        cla.default(definition: .init(
-                name: "use",
-                default: OptionDefinition(name: "file", type: .string, defaultValue: "polymorph.json")
-            ),
-            command: T())
+        cla.main(command: T())
 
-        if let cmd = try? cla.parse(["use"]) {
-            try! cmd.0?.run(cmd.1)
-        }
+        try! cla.run(["--file", "test"])
 
         /*
         let cla = CommandLineArgs(options: [

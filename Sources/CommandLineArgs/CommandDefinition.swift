@@ -1,5 +1,5 @@
 //
-//  Command.swift
+//  CommandDefinition.swift
 //  CommandLineArgs
 //
 //  Created by Benoit BRIATTE on 19/06/2017.
@@ -12,14 +12,14 @@ public struct CommandDefinition {
     public let name: String
     public let aliases: [String]?
     public let definitions: [OptionDefinition]?
-    public let `default`: OptionDefinition?
+    public let main: OptionDefinition?
     public let documentation: String?
 
-    public init(name: String, aliases: [String]? = nil, definitions: [OptionDefinition]? = nil, `default`: OptionDefinition? = nil, documentation: String? = nil) {
+    public init(name: String, aliases: [String]? = nil, definitions: [OptionDefinition]? = nil, main: OptionDefinition? = nil, documentation: String? = nil) {
         self.name = name
         self.aliases = aliases
         self.definitions = definitions
-        self.`default` = `default`
+        self.main = main
         self.documentation = documentation
     }
 }

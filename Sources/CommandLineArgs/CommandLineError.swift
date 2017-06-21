@@ -10,4 +10,5 @@ import Foundation
 public enum CommandLineError: Error {
 
     case missingRequiredArgument
+    case commandNotFound
 }
