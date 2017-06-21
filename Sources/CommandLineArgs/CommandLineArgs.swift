@@ -178,7 +178,7 @@ extension CommandLineArgs: CustomStringConvertible {
             str += "[!] This following command can be run without the command name\n\n\(m.definition)\n----\n"
         }
 
-        self.commands.forEach { str += "\($0.definition)\n----\n" }
+        self.commands.forEach { str += "\($0.definition)\n----\n\n" }
         
         return str
     }
