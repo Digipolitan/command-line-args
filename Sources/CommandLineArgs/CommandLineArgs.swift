@@ -175,10 +175,10 @@ extension CommandLineArgs: CustomStringConvertible {
         str += "COMMANDS : \n\n"
 
         if let m = self.main {
-            str += "[!] This following command can be run without the command name\n\n\(m.definition)"
+            str += "[!] This following command can be run without the command name\n\n\(m.definition)\n----\n"
         }
 
-        self.commands.forEach { str += "\($0.definition)" }
+        self.commands.forEach { str += "\($0.definition)\n----\n" }
         
         return str
     }
