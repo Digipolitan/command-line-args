@@ -161,6 +161,14 @@ extension CommandLineArgs: CustomStringConvertible {
 
         var str = ""
         if let name = self.name {
+            str += "\(name.uppercased())\n\n"
+        }
+
+        if let d = self.documentation {
+            str += "\(d)\n\n"
+        }
+
+        if let name = self.name {
             str += "USAGE : \(name) [COMMAND]\n\n"
         }
 
