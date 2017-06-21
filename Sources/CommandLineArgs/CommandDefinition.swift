@@ -23,3 +23,32 @@ public struct CommandDefinition {
         self.documentation = documentation
     }
 }
+
+extension CommandDefinition: CustomStringConvertible {
+
+    public var description: String {
+
+        var str = "+ \(self.name)\n\n"
+
+        if let d = self.documentation {
+            str += "\(d)\n\n"
+        }
+
+        var optStr = ""
+
+        if let m = self.main {
+            str += "USAGE : \(self.name) [\(m.name.uppercased())] [OPTIONS]\n\n"
+            optStr += "\(m)\n"
+        }
+
+        if let options = self.definitions {
+            options.forEach { optStr += "\($0)\n" }
+        }
+
+        if optStr.count > 0 {
+            str += "OPTIONS : \n\n\(optStr)"
+        }
+
+        return str
+    }
+}

@@ -34,3 +34,46 @@ public struct OptionDefinition {
         self.documentation = documentation
     }
 }
+
+extension OptionDefinition.DataType: CustomStringConvertible {
+
+    public var description: String {
+        switch self {
+        case .boolean:
+            return "Boolean"
+        case .double:
+            return "Double"
+        case .int:
+            return "Int"
+        case .string:
+            return "String"
+        }
+    }
+}
+
+extension OptionDefinition: CustomStringConvertible {
+
+    public var description: String {
+        var str = "--\(self.name)"
+        if let a = self.alias {
+            str += ", -\(a)"
+        }
+        if self.isMultiple {
+            str += " [\(self.type)]"
+        } else {
+            str += " \(self.type)"
+        }
+
+        if self.defaultValue != nil {
+            str += " = \(self.defaultValue!)"
+        } else if !self.isRequired {
+            str += "?"
+        }
+
+        if let d = self.documentation {
+            str += "\n\t\(d)"
+        }
+
+        return str
+    }
+}

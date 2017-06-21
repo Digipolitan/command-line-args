@@ -4,7 +4,9 @@ import XCTest
 class T: Command {
 
     lazy var definition: CommandDefinition = {
-        return CommandDefinition(name: "use", main: OptionDefinition(name: "file", type: .string, defaultValue: "polymorph.json"))
+        var options: [OptionDefinition] = []
+        options.append(OptionDefinition(name: "package", type: .string, alias: "p", isMultiple: true, documentation: "The project package"))
+        return CommandDefinition(name: "use", definitions: options, main: OptionDefinition(name: "file", type: .string, defaultValue: "polymorph.json"), documentation: "Select the polymorph file to be edited")
     }()
 
     func run(_ arguments: [String : Any]) throws {
@@ -16,8 +18,9 @@ class T: Command {
 class CommandLineArgsTests: XCTestCase {
     func testExample() {
 
-        let cla = CommandLineArgs()
+        let cla = CommandLineArgs(name: "polymorph")
         cla.main(command: T())
+        print(cla)
 
         try! cla.run(["--file", "test"])
 

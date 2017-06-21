@@ -2,10 +2,14 @@ import Foundation
 
 public class CommandLineArgs {
 
-    private var commands: [Command]
-    private var main: Command?
+    public let name: String?
+    public let documentation: String?
+    public private(set) var commands: [Command]
+    public private(set) var main: Command?
 
-    public init() {
+    public init(name: String? = nil, documentation: String? = nil) {
+        self.name = name
+        self.documentation = documentation
         self.commands = []
     }
 
@@ -148,5 +152,26 @@ public class CommandLineArgs {
                 str = ""
             }
         }
+    }
+}
+
+extension CommandLineArgs: CustomStringConvertible {
+
+    public var description: String {
+
+        var str = ""
+        if let name = self.name {
+            str += "USAGE : \(name) [COMMAND]\n\n"
+        }
+
+        str += "COMMANDS : \n\n"
+
+        if let m = self.main {
+            str += "[!] This following command can be run without the command name\n\n\(m.definition)"
+        }
+
+        self.commands.forEach { str += "\($0.definition)" }
+        
+        return str
     }
 }
