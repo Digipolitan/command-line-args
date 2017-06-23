@@ -14,5 +14,4 @@ public protocol Command {
     func run(_ arguments: [String: Any]) throws
 
     var definition: CommandDefinition { get }
-
 }

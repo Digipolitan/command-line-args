@@ -9,6 +9,6 @@ import Foundation
 
 public enum CommandLineError: Error {
 
-    case missingRequiredArgument
+    case missingRequiredArgument(node: CommandNode)
     case commandNotFound
 }
