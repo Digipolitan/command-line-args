@@ -51,10 +51,12 @@ extension CommandNode: Helpable {
         str += "\t$ \(commands.joined(separator: " "))"
 
         if hasChildren {
-            str += " [COMMAND] [OPTIONS]\n\n"
+            str += " [COMMAND]"
         } else if let main = definition.main {
-            str += " [\(main.name.uppercased())] [OPTIONS]\n\n"
+            str += " [\(main.name.uppercased())]"
         }
+
+        str += " [OPTIONS]\n\n"
 
         if let documentation = definition.documentation {
             str += "\(documentation)\n\n"
