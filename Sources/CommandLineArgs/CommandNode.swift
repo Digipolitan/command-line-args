@@ -84,7 +84,7 @@ extension CommandNode: Helpable {
 
         if optionsArr.count > 0 {
             str += "OPTIONS :\n\n"
-            str += optionsArr.joined(separator: "\n")
+            str += optionsArr.joined(separator: "\n\n")
         }
 
         return str
@@ -95,10 +95,10 @@ extension CommandNode: Helpable {
         if let alias = option.alias {
             str += "|-\(alias)"
         }
+        
+        str += " \(option.type)"
         if option.isMultiple {
-            str += " [\(option.type)]"
-        } else {
-            str += " \(option.type)"
+            str += "[]"
         }
 
         if option.defaultValue != nil {

@@ -10,5 +10,6 @@ import Foundation
 public enum CommandLineError: Error {
 
     case missingRequiredArgument(node: CommandNode)
+    case groupCommand(node: CommandNode)
     case commandNotFound
 }
