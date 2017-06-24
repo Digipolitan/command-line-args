@@ -208,7 +208,7 @@ public class CommandLineArgs {
 extension CommandLineArgs: Helpable {
 
     public func help() -> String {
-        return self.roots.map { $0.help() }.joined(separator: "\n\n")
+        return self.roots.map { $0.help() }.joined(separator: "\n\n---\n\n")
     }
 
 }
