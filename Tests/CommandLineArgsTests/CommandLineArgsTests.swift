@@ -23,22 +23,7 @@ class CommandLineArgsTests: XCTestCase {
         polymorph.add(child: T())
 
         cla.handle(["use", "use"])
-
-
-        /*
-        let cla = CommandLineArgs(options: [
-            .init(name: "hot", type: .boolean, alias: "h"),
-            .init(name: "nonnull", type: .boolean, alias: "nn", isRequired: true),
-            .init(name: "discount", type: .boolean, alias: "d"),
-            .init(name: "courses", type: .int, alias: "c"),
-            .init(name: "files", type: .string, alias: "f", isMultiple: true),
-            ], default: .init(name: "action", type: .string, isMultiple: true))
-
-        let result = try! cla.parse(arguments: ["rm", "data", "-h", "--files", "test", "test2", "-d", "--files=bonjour", "-f", "testdeouf"])
-        print(result)
- */
     }
-
 
     static var allTests: [(String, (CommandLineArgsTests) -> () -> Void)] = [
         ("testExample", testExample),
