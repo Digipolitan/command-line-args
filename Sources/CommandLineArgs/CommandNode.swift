@@ -34,10 +34,12 @@ extension CommandNode: Helpable {
 
     public func help() -> String {
 
+        var part: [String] = []
+
         let definition = self.command.definition
         let hasChildren = self.children.count > 0
 
-        var str = "USAGE :\n\n"
+        part.append("USAGE :")
 
         var commands: [String] = []
 
@@ -48,31 +50,12 @@ extension CommandNode: Helpable {
         }
         commands.reverse()
 
-        str += "\t$ \(commands.joined(separator: " "))"
+        var cmd = "\t$ \(commands.joined(separator: " "))"
 
         if hasChildren {
-            str += " [COMMAND]"
+            cmd += " [COMMAND]"
         } else if let main = definition.main {
-            str += " [\(main.name.uppercased())]"
-        }
-
-        str += " [OPTIONS]\n\n"
-
-        if let documentation = definition.documentation {
-            str += "\(documentation)\n\n"
-        }
-
-        if hasChildren {
-            str += "COMMANDS :\n\n"
-
-            for child in self.children {
-                let childDefinition = child.command.definition
-                str += "+ \(childDefinition.name)"
-                if let documentation = childDefinition.documentation {
-                    str += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
-                }
-                str += "\n\n"
-            }
+            cmd += " [\(main.name.uppercased())]"
         }
 
         var optionsArr: [String] = []
@@ -85,11 +68,34 @@ extension CommandNode: Helpable {
         }
 
         if optionsArr.count > 0 {
-            str += "OPTIONS :\n\n"
-            str += optionsArr.joined(separator: "\n\n")
+            cmd += " [OPTIONS]"
         }
 
-        return str
+        part.append(cmd)
+
+        if let documentation = definition.documentation {
+            part.append(documentation)
+        }
+
+        if hasChildren {
+            part.append("COMMANDS :")
+
+            for child in self.children {
+                let childDefinition = child.command.definition
+                var childCmd = "+ \(childDefinition.name)"
+                if let documentation = childDefinition.documentation {
+                    childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
+                }
+                part.append(childCmd)
+            }
+        }
+
+        if optionsArr.count > 0 {
+            part.append("OPTIONS :")
+            part.append(contentsOf: optionsArr)
+        }
+
+        return part.joined(separator: "\n\n")
     }
 
     private func help(option: OptionDefinition) -> String {
