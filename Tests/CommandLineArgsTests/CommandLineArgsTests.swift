@@ -22,20 +22,7 @@ class CommandLineArgsTests: XCTestCase {
         let polymorph = cla.root(command: T())
         polymorph.add(child: T())
 
-        do {
-            let task = try cla.build(["use", "use"])
-            if let help = task.arguments["help"] as? Bool, help == true {
-                print(task.help())
-            } else {
-                try task.exec()
-            }
-        } catch CommandLineError.missingRequiredArgument(let node) {
-            print("[!] Missing required parameter\n")
-            print(node.help())
-        } catch {
-            print("[!] Command not found\n")
-            print(cla.help())
-        }
+        cla.handle(["use", "use"])
 
 
         /*

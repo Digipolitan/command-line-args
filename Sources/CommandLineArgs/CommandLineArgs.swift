@@ -8,6 +8,40 @@ public class CommandLineArgs {
         self.roots = []
     }
 
+    public struct Keys {
+        public let help: String
+
+        public init(help: String = "help") {
+            self.help = help
+        }
+    }
+
+    public typealias CommandNodeHandler = (_ node: CommandNode) -> ()
+    public typealias CommandLineArgsHandler = (_ cli: CommandLineArgs) -> ()
+    public typealias ErrorHandler = (_ error: Error) -> ()
+
+    public struct Handlers {
+
+        public let missingRequiredParameter: CommandNodeHandler
+        public let unimplementedCommand: CommandNodeHandler
+        public let commandNotFound: CommandLineArgsHandler
+        public let unexpectedError: ErrorHandler
+
+        public init(missingRequiredParameter: CommandNodeHandler? = nil, unimplementedCommand: CommandNodeHandler? = nil, commandNotFound: CommandLineArgsHandler? = nil, unexpectedError: ErrorHandler? = nil) {
+
+            self.missingRequiredParameter = missingRequiredParameter ?? { print("[!] Missing required parameter\n\($0.help())")}
+            self.unimplementedCommand = unimplementedCommand ?? { print("\($0.help())")}
+            self.commandNotFound = commandNotFound ?? { print("[!] Command not found\n\($0.help())")}
+            self.unexpectedError = unexpectedError ?? { print("[!] Unexpected error occured: \($0)")}
+        }
+    }
+
+    public enum Consts {
+
+        public static let keys: Keys = Keys()
+        public static let handlers: Handlers = Handlers()
+    }
+
     @discardableResult
     public func root(command: Command) -> CommandNode {
         let root = CommandNode(command: command)
@@ -31,6 +65,27 @@ public class CommandLineArgs {
             return Task(node: node, arguments: args)
         } else {
             throw CommandLineError.commandNotFound
+        }
+    }
+
+    public func handle(_ arguments: [String], keys: Keys = Consts.keys, handlers: Handlers = Consts.handlers) {
+        do {
+            let task = try self.build(arguments)
+            if let help = task.arguments[keys.help] as? Bool, help == true {
+                print(task.help())
+            } else {
+                do {
+                    try task.exec()
+                } catch CommandLineError.unimplementedCommand {
+                    handlers.unimplementedCommand(task.node)
+                }
+            }
+        } catch CommandLineError.missingRequiredArgument(let node) {
+            handlers.missingRequiredParameter(node)
+        } catch CommandLineError.commandNotFound {
+            handlers.commandNotFound(self)
+        } catch {
+            handlers.unexpectedError(error)
         }
     }
 
