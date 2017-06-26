@@ -18,6 +18,7 @@ public class CommandNode {
         self.children = []
     }
 
+    @discardableResult
     public func add(child: Command) -> CommandNode {
         let node = CommandNode(command: child)
         node.parent = self
