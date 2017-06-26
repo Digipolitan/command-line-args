@@ -18,7 +18,7 @@ public class CommandNode {
         self.children = []
     }
 
-    public func add(child: Command) {
+    public func add(child: Command) -> CommandNode {
         let node = CommandNode(command: child)
         node.parent = self
         if let idx = self.children.index(of: child.definition.name) {
@@ -27,6 +27,7 @@ public class CommandNode {
         } else {
             self.children.append(node)
         }
+        return node
     }
 }
 
