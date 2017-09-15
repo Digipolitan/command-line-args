@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Rainbow
 
 public class CommandNode {
 
@@ -41,7 +42,7 @@ extension CommandNode: Helpable {
         let definition = self.command.definition
         let hasChildren = self.children.count > 0
 
-        part.append("USAGE :")
+        part.append("Usage :".underline)
 
         var commands: [String] = []
 
@@ -60,31 +61,40 @@ extension CommandNode: Helpable {
             cmd += " [\(main.name.uppercased())]"
         }
 
-        var optionsArr: [String] = []
+        var requiredOptionsArr: [String] = []
+        var optionalOptionsArr: [String] = []
 
+        let optionHelpClosure: (OptionDefinition) -> Void = {
+            let help = self.help(option: $0)
+            if $0.isRequired && $0.defaultValue == nil {
+                requiredOptionsArr.append(help)
+            } else {
+                optionalOptionsArr.append(help)
+            }
+        }
         if let main = definition.main {
-            optionsArr.append(self.help(option: main))
+            optionHelpClosure(main)
         }
         if let options = definition.options {
-            optionsArr.append(contentsOf: options.map { self.help(option: $0) })
+            options.forEach(optionHelpClosure)
         }
 
-        if optionsArr.count > 0 {
+        if requiredOptionsArr.count > 0 || optionalOptionsArr.count > 0 {
             cmd += " [OPTIONS]"
         }
 
-        part.append(cmd)
+        part.append(cmd.green)
 
         if let documentation = definition.documentation {
             part.append(documentation)
         }
 
         if hasChildren {
-            part.append("COMMANDS :")
+            part.append("Commands :".underline)
 
             for child in self.children {
                 let childDefinition = child.command.definition
-                var childCmd = "+ \(childDefinition.name)"
+                var childCmd = "+ \(childDefinition.name)".green
                 if let documentation = childDefinition.documentation {
                     childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
                 }
@@ -92,18 +102,23 @@ extension CommandNode: Helpable {
             }
         }
 
-        if optionsArr.count > 0 {
-            part.append("OPTIONS :")
-            part.append(contentsOf: optionsArr)
+        if requiredOptionsArr.count > 0 {
+            part.append("Required options :".underline)
+            part.append(contentsOf: requiredOptionsArr)
+        }
+
+        if optionalOptionsArr.count > 0 {
+            part.append("Optional options :".underline)
+            part.append(contentsOf: optionalOptionsArr)
         }
 
         return part.joined(separator: "\n\n")
     }
 
     private func help(option: OptionDefinition) -> String {
-        var str = "--\(option.name)"
+        var str = "--\(option.name)".blue
         if let alias = option.alias {
-            str += "|-\(alias)"
+            str += "|-\(alias)".blue
         }
         
         str += " \(option.type)"
@@ -112,9 +127,8 @@ extension CommandNode: Helpable {
         }
 
         if option.defaultValue != nil {
-            str += " = \(option.defaultValue!)"
-        } else if !option.isRequired {
-            str += "?"
+            let value = "\(option.defaultValue!)".magenta
+            str += " = \(value)"
         }
 
         if let documentation = option.documentation {

@@ -9,7 +9,7 @@ import Foundation
 
 public enum CommandLineError: Error {
 
-    case missingRequiredArgument(node: CommandNode)
+    case command(node: CommandNode, missingParameters: [String])
     case commandNotFound
     case unimplementedCommand
 }

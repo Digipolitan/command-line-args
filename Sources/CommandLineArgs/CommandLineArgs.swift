@@ -1,4 +1,5 @@
 import Foundation
+import Rainbow
 
 public class CommandLineArgs {
 
@@ -17,22 +18,25 @@ public class CommandLineArgs {
     }
 
     public typealias CommandNodeHandler = (_ node: CommandNode) -> ()
+    public typealias MissingRequiredParametersHandler = (_ node: CommandNode, _ missingParameters: [String]) -> ()
     public typealias CommandLineArgsHandler = (_ cli: CommandLineArgs) -> ()
     public typealias ErrorHandler = (_ error: Error) -> ()
 
     public struct Handlers {
 
-        public let missingRequiredParameter: CommandNodeHandler
+        public let missingRequiredParameters: MissingRequiredParametersHandler
         public let unimplementedCommand: CommandNodeHandler
         public let commandNotFound: CommandLineArgsHandler
         public let unexpectedError: ErrorHandler
 
-        public init(missingRequiredParameter: CommandNodeHandler? = nil, unimplementedCommand: CommandNodeHandler? = nil, commandNotFound: CommandLineArgsHandler? = nil, unexpectedError: ErrorHandler? = nil) {
+        public init(missingRequiredParameters: MissingRequiredParametersHandler? = nil, unimplementedCommand: CommandNodeHandler? = nil, commandNotFound: CommandLineArgsHandler? = nil, unexpectedError: ErrorHandler? = nil) {
 
-            self.missingRequiredParameter = missingRequiredParameter ?? { print("[!] Missing required parameter\n\($0.help())\n")}
+            self.missingRequiredParameters = missingRequiredParameters ?? { _, missingParameters in
+                print("[!] Missing required parameter: \n\(missingParameters.joined(separator: ", "))\n".red)
+            }
             self.unimplementedCommand = unimplementedCommand ?? { print("\($0.help())")}
-            self.commandNotFound = commandNotFound ?? { print("[!] Command not found\n\($0.help())\n")}
-            self.unexpectedError = unexpectedError ?? { print("[!] Unexpected error occured: \($0)\n")}
+            self.commandNotFound = commandNotFound ?? { print("\("[!] Command not found".red)\n\($0.help())\n")}
+            self.unexpectedError = unexpectedError ?? { print("[!] Unexpected error occured: \($0)\n".red)}
         }
     }
 
@@ -80,8 +84,8 @@ public class CommandLineArgs {
                     handlers.unimplementedCommand(task.node)
                 }
             }
-        } catch CommandLineError.missingRequiredArgument(let node) {
-            handlers.missingRequiredParameter(node)
+        } catch CommandLineError.command(let node, let missingParameters) {
+            handlers.missingRequiredParameters(node, missingParameters)
         } catch CommandLineError.commandNotFound {
             handlers.commandNotFound(self)
         } catch {

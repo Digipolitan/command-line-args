@@ -18,25 +18,38 @@ public class Task: Helpable {
     }
 
     public func exec() throws {
-        if let main = self.node.command.definition.main {
-            try self.checkArguments(option: main)
-        }
-        if let options = self.node.command.definition.options {
-            for option in options {
-                try self.checkArguments(option: option)
-            }
-        }
+        try self.checkArguments()
         try self.node.command.run(self.arguments)
     }
 
-    private func checkArguments(option: OptionDefinition) throws {
+    private func checkArguments() throws {
+        var missingParameters: [String] = []
+        if let main = self.node.command.definition.main {
+            if !checkArgument(option: main) {
+                missingParameters.append(main.name)
+            }
+        }
+        if let options = self.node.command.definition.options {
+            for option in options {
+                if !checkArgument(option: option) {
+                    missingParameters.append(option.name)
+                }
+            }
+        }
+        if missingParameters.count > 0 {
+            throw CommandLineError.command(node: self.node, missingParameters: missingParameters)
+        }
+    }
+
+    private func checkArgument(option: OptionDefinition) -> Bool {
         if self.arguments[option.name] == nil {
             if option.defaultValue != nil {
                 self.arguments[option.name] = option.defaultValue
             } else if option.isRequired {
-                throw CommandLineError.missingRequiredArgument(node: node)
+                return false
             }
         }
+        return true
     }
 
     public func help() -> String {
