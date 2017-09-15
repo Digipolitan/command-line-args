@@ -79,7 +79,9 @@ extension CommandNode: Helpable {
             options.forEach(optionHelpClosure)
         }
 
-        if requiredOptionsArr.count > 0 || optionalOptionsArr.count > 0 {
+        let hasOptions = requiredOptionsArr.count > 0 || optionalOptionsArr.count > 0
+
+        if hasOptions {
             cmd += " [OPTIONS]"
         }
 
@@ -102,37 +104,40 @@ extension CommandNode: Helpable {
             }
         }
 
-        if requiredOptionsArr.count > 0 {
-            part.append("Required options :".underline)
-            part.append(contentsOf: requiredOptionsArr)
-        }
+        if hasOptions {
+            part.append("Options :".underline)
+            if requiredOptionsArr.count > 0 {
+                part.append("\tRequired :".underline)
+                part.append(contentsOf: requiredOptionsArr)
+            }
 
-        if optionalOptionsArr.count > 0 {
-            part.append("Optional options :".underline)
-            part.append(contentsOf: optionalOptionsArr)
+            if optionalOptionsArr.count > 0 {
+                part.append("\tOptional :".underline)
+                part.append(contentsOf: optionalOptionsArr)
+            }
         }
 
         return part.joined(separator: "\n\n")
     }
 
     private func help(option: OptionDefinition) -> String {
-        var str = "--\(option.name)".blue
+        var str = "\t--\(option.name)".blue
         if let alias = option.alias {
             str += "|-\(alias)".blue
         }
-        
-        str += " \(option.type)"
+
+        var type = "\(option.type)"
         if option.isMultiple {
-            str += "[]"
+            type += "[]"
         }
+        str += type.magenta
 
         if option.defaultValue != nil {
-            let value = "\(option.defaultValue!)".magenta
-            str += " = \(value)"
+            str += " = \(option.defaultValue!)".magenta
         }
 
         if let documentation = option.documentation {
-            str += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
+            str += "\n\t  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
         }
         return str
     }
