@@ -32,10 +32,10 @@ public class CommandLineArgs {
         public init(missingRequiredParameters: MissingRequiredParametersHandler? = nil, unimplementedCommand: CommandNodeHandler? = nil, commandNotFound: CommandLineArgsHandler? = nil, unexpectedError: ErrorHandler? = nil) {
 
             self.missingRequiredParameters = missingRequiredParameters ?? { _, missingParameters in
-                print("[!] Missing required parameter: \(missingParameters.joined(separator: ", "))\nUse the --help option to show help banner of this command".red)
+                print("[!] Missing required parameter(s): \(missingParameters.joined(separator: ", "))\nUse the --help option to show help banner of this command".red)
             }
             self.unimplementedCommand = unimplementedCommand ?? { print("\($0.help())")}
-            self.commandNotFound = commandNotFound ?? { print("\("[!] Command not found".red)\n\($0.help())")}
+            self.commandNotFound = commandNotFound ?? { print("\("[!] Command not found".red)\n\n\($0.help())")}
             self.unexpectedError = unexpectedError ?? { print("[!] Unexpected error occured: \($0)".red)}
         }
     }

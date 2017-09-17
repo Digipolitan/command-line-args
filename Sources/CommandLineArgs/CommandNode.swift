@@ -107,10 +107,10 @@ extension CommandNode: Helpable {
         if hasOptions {
             part.append("Options :".underline)
             if requiredOptionsArr.count > 0 {
-                part.append("* Required :")
+                part.append("Required :".bold)
                 part.append(contentsOf: requiredOptionsArr)
                 if optionalOptionsArr.count > 0 {
-                    part.append("* Optional :")
+                    part.append("Optional :".bold)
                     part.append(contentsOf: optionalOptionsArr)
                 }
             } else {
