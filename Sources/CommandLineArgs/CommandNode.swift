@@ -85,7 +85,7 @@ extension CommandNode: Helpable {
             cmd += " [OPTIONS]"
         }
 
-        part.append(cmd.green)
+        part.append(cmd.lightGreen)
 
         if let documentation = definition.documentation {
             part.append(documentation)
@@ -96,7 +96,7 @@ extension CommandNode: Helpable {
 
             for child in self.children {
                 let childDefinition = child.command.definition
-                var childCmd = "+ \(childDefinition.name)".green
+                var childCmd = "+ \(childDefinition.name)".lightGreen
                 if let documentation = childDefinition.documentation {
                     childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
                 }
@@ -107,12 +107,12 @@ extension CommandNode: Helpable {
         if hasOptions {
             part.append("Options :".underline)
             if requiredOptionsArr.count > 0 {
-                part.append("\tRequired :".underline)
+                part.append("* Required :".underline)
                 part.append(contentsOf: requiredOptionsArr)
             }
 
             if optionalOptionsArr.count > 0 {
-                part.append("\tOptional :".underline)
+                part.append("* Optional :".underline)
                 part.append(contentsOf: optionalOptionsArr)
             }
         }
@@ -121,23 +121,26 @@ extension CommandNode: Helpable {
     }
 
     private func help(option: OptionDefinition) -> String {
-        var str = "\t--\(option.name)".blue
+
+        var name = "--\(option.name)"
         if let alias = option.alias {
-            str += "|-\(alias)".blue
+            name += "|-\(alias)"
         }
+
+        var str = name.lightGreen
 
         var type = "\(option.type)"
         if option.isMultiple {
             type += "[]"
         }
-        str += type.magenta
+        str += " " + type.lightMagenta
 
         if option.defaultValue != nil {
-            str += " = \(option.defaultValue!)".magenta
+            str += " = "  + "\(option.defaultValue!)".lightRed
         }
 
         if let documentation = option.documentation {
-            str += "\n\t  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
+            str += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
         }
         return str
     }
