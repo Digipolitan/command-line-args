@@ -85,7 +85,7 @@ extension CommandNode: Helpable {
             cmd += " [OPTIONS]"
         }
 
-        part.append(cmd.lightGreen)
+        part.append(cmd.green)
 
         if let documentation = definition.documentation {
             part.append(documentation)
@@ -96,7 +96,7 @@ extension CommandNode: Helpable {
 
             for child in self.children {
                 let childDefinition = child.command.definition
-                var childCmd = "+ \(childDefinition.name)".lightGreen
+                var childCmd = "+ \(childDefinition.name)".green
                 if let documentation = childDefinition.documentation {
                     childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
                 }
@@ -107,12 +107,13 @@ extension CommandNode: Helpable {
         if hasOptions {
             part.append("Options :".underline)
             if requiredOptionsArr.count > 0 {
-                part.append("* Required :".underline)
+                part.append("* Required :")
                 part.append(contentsOf: requiredOptionsArr)
-            }
-
-            if optionalOptionsArr.count > 0 {
-                part.append("* Optional :".underline)
+                if optionalOptionsArr.count > 0 {
+                    part.append("* Optional :")
+                    part.append(contentsOf: optionalOptionsArr)
+                }
+            } else {
                 part.append(contentsOf: optionalOptionsArr)
             }
         }
@@ -127,16 +128,16 @@ extension CommandNode: Helpable {
             name += "|-\(alias)"
         }
 
-        var str = name.lightGreen
+        var str = name.green
 
         var type = "\(option.type)"
         if option.isMultiple {
             type += "[]"
         }
-        str += " " + type.lightMagenta
+        str += " " + type.magenta
 
         if option.defaultValue != nil {
-            str += " = "  + "\(option.defaultValue!)".lightRed
+            str += " = "  + "\(option.defaultValue!)".red
         }
 
         if let documentation = option.documentation {
