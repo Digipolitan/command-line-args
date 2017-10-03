@@ -133,11 +133,11 @@ public class CommandLineArgs {
                     if count > 1 {
                         let secondIndex = arg.index(after: startIndex)
                         if arg[secondIndex] == "-" {
-                            self.parse(verbose: arg.substring(from: arg.index(after: secondIndex)), output: &res, definition: definition, current: &current)
+                            self.parse(verbose: String(arg[arg.index(after: secondIndex)...]), output: &res, definition: definition, current: &current)
                             continue
                         }
                     }
-                    self.parse(alias: arg.substring(from: arg.index(after: startIndex)), output: &res, definition: definition, current: &current)
+                    self.parse(alias: String(arg[arg.index(after: startIndex)...]), output: &res, definition: definition, current: &current)
                     continue
                 }
                 if let opt = current ?? definition.main {
@@ -172,8 +172,8 @@ public class CommandLineArgs {
 
     private func parse(verbose argument: String, output: inout [String: Any], definition: CommandDefinition, current: inout OptionDefinition?) {
         if let index = argument.index(of: "=") {
-            let name = argument.substring(to: index)
-            let value = argument.substring(from: argument.index(after: index))
+            let name = String(argument[...index])
+            let value = String(argument[argument.index(after: index)...])
 
             if let option = definition.options?.first(where: { $0.name == name }) {
                 let data = CommandLineArgs.convert(argument: value, type: option.type)
