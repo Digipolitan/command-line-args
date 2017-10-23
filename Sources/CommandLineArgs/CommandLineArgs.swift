@@ -172,7 +172,7 @@ public class CommandLineArgs {
 
     private func parse(verbose argument: String, output: inout [String: Any], definition: CommandDefinition, current: inout OptionDefinition?) {
         if let index = argument.index(of: "=") {
-            let name = String(argument[...index])
+            let name = String(argument[..<index])
             let value = String(argument[argument.index(after: index)...])
 
             if let option = definition.options?.first(where: { $0.name == name }) {
