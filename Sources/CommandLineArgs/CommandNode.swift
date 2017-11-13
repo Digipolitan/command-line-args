@@ -35,24 +35,26 @@ public class CommandNode {
 
 extension CommandNode: Helpable {
 
+    public func hierarchy() -> [CommandNode] {
+        var hierarchy: [CommandNode] = []
+        var current: CommandNode? = self
+        while let unwrap = current {
+            hierarchy.append(unwrap)
+            current = unwrap.parent
+        }
+        return hierarchy.reversed()
+    }
+
     public func help() -> String {
 
-        var part: [String] = []
+        var parts: [String] = []
 
         let definition = self.command.definition
         let hasChildren = self.children.count > 0
 
-        part.append("Usage :".underline)
+        parts.append("Usage :".underline)
 
-        var commands: [String] = []
-
-        var current: CommandNode? = self
-        while let unwrap = current {
-            commands.append(self.name(definition: unwrap.command.definition))
-            current = unwrap.parent
-        }
-        commands.reverse()
-
+        let commands: [String] = self.hierarchy().map { self.name(definition: $0.command.definition) }
         var cmd = "\t$ \(commands.joined(separator: " "))"
 
         if hasChildren {
@@ -61,15 +63,15 @@ extension CommandNode: Helpable {
             cmd += " [\(main.name.uppercased())]"
         }
 
-        var requiredOptionsArr: [String] = []
-        var optionalOptionsArr: [String] = []
+        var requiredOptions: [String] = []
+        var optionalOptions: [String] = []
 
         let optionHelpClosure: (OptionDefinition) -> Void = {
             let help = self.help(option: $0)
             if $0.isRequired && $0.defaultValue == nil {
-                requiredOptionsArr.append(help)
+                requiredOptions.append(help)
             } else {
-                optionalOptionsArr.append(help)
+                optionalOptions.append(help)
             }
         }
         if let main = definition.main {
@@ -79,46 +81,29 @@ extension CommandNode: Helpable {
             options.forEach(optionHelpClosure)
         }
 
-        let hasOptions = requiredOptionsArr.count > 0 || optionalOptionsArr.count > 0
+        let hasOptions = requiredOptions.count > 0 || optionalOptions.count > 0
 
         if hasOptions {
             cmd += " [OPTIONS]"
         }
 
-        part.append(cmd.green)
+        parts.append(cmd.green)
 
         if let documentation = definition.documentation {
-            part.append(documentation)
+            parts.append(documentation)
         }
 
         if hasChildren {
-            part.append("Commands :".underline)
-
-            for child in self.children {
-                let childDefinition = child.command.definition
-                var childCmd = "+ \(childDefinition.name)".green
-                if let documentation = childDefinition.documentation {
-                    childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
-                }
-                part.append(childCmd)
-            }
+            parts.append("Commands :".underline)
+            parts.append(contentsOf: self.childrenCommandHelp())
         }
 
         if hasOptions {
-            part.append("Options :".underline)
-            if requiredOptionsArr.count > 0 {
-                part.append("Required :".bold)
-                part.append(contentsOf: requiredOptionsArr)
-                if optionalOptionsArr.count > 0 {
-                    part.append("Optional :".bold)
-                    part.append(contentsOf: optionalOptionsArr)
-                }
-            } else {
-                part.append(contentsOf: optionalOptionsArr)
-            }
+            parts.append("Options :".underline)
+            parts.append(contentsOf: self.optionsHelp(required: requiredOptions, optional: optionalOptions))
         }
 
-        return part.joined(separator: "\n\n")
+        return parts.joined(separator: "\n\n")
     }
 
     private func help(option: OptionDefinition) -> String {
@@ -152,6 +137,34 @@ extension CommandNode: Helpable {
             aliases.forEach { name += "|\($0)" }
         }
         return name
+    }
+
+    private func childrenCommandHelp() -> [String] {
+        var parts: [String] = []
+        for child in self.children {
+            let childDefinition = child.command.definition
+            var childCmd = "+ \(childDefinition.name)".green
+            if let documentation = childDefinition.documentation {
+                childCmd += "\n  \(documentation.replacingOccurrences(of: "\n", with: "\n  "))"
+            }
+            parts.append(childCmd)
+        }
+        return parts
+    }
+
+    private func optionsHelp(required: [String], optional: [String]) -> [String] {
+        var parts: [String] = []
+        if required.count > 0 {
+            parts.append("Required :".bold)
+            parts.append(contentsOf: required)
+            if optional.count > 0 {
+                parts.append("Optional :".bold)
+                parts.append(contentsOf: optional)
+            }
+        } else {
+            parts.append(contentsOf: optional)
+        }
+        return parts
     }
 }
 

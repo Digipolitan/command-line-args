@@ -10,5 +10,4 @@ import Foundation
 public protocol Helpable {
 
     func help() -> String
-
 }

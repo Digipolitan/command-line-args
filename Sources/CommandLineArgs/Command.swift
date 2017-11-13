@@ -7,7 +7,7 @@
 
 import Foundation
 
-public typealias CommandHandler = ([String: Any]) throws -> ()
+public typealias CommandHandler = ([String: Any]) throws -> Void
 
 public protocol Command {
 

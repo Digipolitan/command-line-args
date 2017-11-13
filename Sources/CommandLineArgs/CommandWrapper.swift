@@ -7,7 +7,7 @@
 
 import Foundation
 
-class CommandWrapper: Command {
+public class CommandWrapper: Command {
 
     private let handler: CommandHandler
     public let definition: CommandDefinition
@@ -17,7 +17,7 @@ class CommandWrapper: Command {
         self.handler = handler
     }
 
-    public func run(_ arguments: [String : Any]) throws {
+    public func run(_ arguments: [String: Any]) throws {
         try self.handler(arguments)
     }
 }
