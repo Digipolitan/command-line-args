@@ -17,10 +17,10 @@ public class CommandLineArgs {
         }
     }
 
-    public typealias CommandNodeHandler = (_ node: CommandNode) -> ()
-    public typealias MissingRequiredParametersHandler = (_ node: CommandNode, _ missingParameters: [String]) -> ()
-    public typealias CommandLineArgsHandler = (_ cli: CommandLineArgs) -> ()
-    public typealias ErrorHandler = (_ error: Error) -> ()
+    public typealias CommandNodeHandler = (_ node: CommandNode) -> Void
+    public typealias MissingRequiredParametersHandler = (_ node: CommandNode, _ missingParameters: [String]) -> Void
+    public typealias CommandLineArgsHandler = (_ cli: CommandLineArgs) -> Void
+    public typealias ErrorHandler = (_ error: Error) -> Void
 
     public struct Handlers {
 
@@ -29,7 +29,10 @@ public class CommandLineArgs {
         public let commandNotFound: CommandLineArgsHandler
         public let unexpectedError: ErrorHandler
 
-        public init(missingRequiredParameters: MissingRequiredParametersHandler? = nil, unimplementedCommand: CommandNodeHandler? = nil, commandNotFound: CommandLineArgsHandler? = nil, unexpectedError: ErrorHandler? = nil) {
+        public init(missingRequiredParameters: MissingRequiredParametersHandler? = nil,
+                    unimplementedCommand: CommandNodeHandler? = nil,
+                    commandNotFound: CommandLineArgsHandler? = nil,
+                    unexpectedError: ErrorHandler? = nil) {
 
             self.missingRequiredParameters = missingRequiredParameters ?? { _, missingParameters in
                 print("[!] Missing required parameter(s): \(missingParameters.joined(separator: ", "))\nUse the --help option to show help banner of this command".red)
@@ -133,17 +136,23 @@ public class CommandLineArgs {
                     if count > 1 {
                         let secondIndex = arg.index(after: startIndex)
                         if arg[secondIndex] == "-" {
-                            self.parse(verbose: String(arg[arg.index(after: secondIndex)...]), output: &res, definition: definition, current: &current)
+                            self.parse(verbose: String(arg[arg.index(after: secondIndex)...]),
+                                       output: &res,
+                                       definition: definition,
+                                       current: &current)
                             continue
                         }
                     }
-                    self.parse(alias: String(arg[arg.index(after: startIndex)...]), output: &res, definition: definition, current: &current)
+                    self.parse(alias: String(arg[arg.index(after: startIndex)...]),
+                               output: &res,
+                               definition: definition,
+                               current: &current)
                     continue
                 }
                 if let opt = current ?? definition.main {
                     let data = CommandLineArgs.convert(argument: arg, type: opt.type)
                     if opt.isMultiple {
-                        var arr = res[opt.name] as? Array<Any> ?? []
+                        var arr = res[opt.name] as? [Any] ?? []
                         arr.append(data)
                         res[opt.name] = arr
                     } else {
@@ -170,7 +179,10 @@ public class CommandLineArgs {
         return 0
     }
 
-    private func parse(verbose argument: String, output: inout [String: Any], definition: CommandDefinition, current: inout OptionDefinition?) {
+    private func parse(verbose argument: String,
+                       output: inout [String: Any],
+                       definition: CommandDefinition,
+                       current: inout OptionDefinition?) {
         if let index = argument.index(of: "=") {
             let name = String(argument[..<index])
             let value = String(argument[argument.index(after: index)...])
@@ -178,7 +190,7 @@ public class CommandLineArgs {
             if let option = definition.options?.first(where: { $0.name == name }) {
                 let data = CommandLineArgs.convert(argument: value, type: option.type)
                 if option.isMultiple {
-                    var arr = output[option.name] as? Array<Any> ?? []
+                    var arr = output[option.name] as? [Any] ?? []
                     arr.append(data)
                     output[option.name] = arr
                 } else {
@@ -193,7 +205,10 @@ public class CommandLineArgs {
         }
     }
 
-    private func parse(alias argument: String, output: inout [String: Any], definition: CommandDefinition, current: inout OptionDefinition?) {
+    private func parse(alias argument: String,
+                       output: inout [String: Any],
+                       definition: CommandDefinition,
+                       current: inout OptionDefinition?) {
         var str = ""
         for ch in argument {
             str.append(ch)

@@ -15,7 +15,11 @@ public struct CommandDefinition {
     public let main: OptionDefinition?
     public let documentation: String?
 
-    public init(name: String, aliases: [String]? = nil, options: [OptionDefinition]? = nil, main: OptionDefinition? = nil, documentation: String? = nil) {
+    public init(name: String,
+                aliases: [String]? = nil,
+                options: [OptionDefinition]? = nil,
+                main: OptionDefinition? = nil,
+                documentation: String? = nil) {
         self.name = name
         self.aliases = aliases
         self.options = options

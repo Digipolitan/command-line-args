@@ -24,7 +24,13 @@ public struct OptionDefinition {
     public let isRequired: Bool
     public let documentation: String?
 
-    public init(name: String, type: DataType, alias: String? = nil, isMultiple: Bool = false, defaultValue: Any? = nil, isRequired: Bool = false, documentation: String? = nil) {
+    public init(name: String,
+                type: DataType,
+                alias: String? = nil,
+                isMultiple: Bool = false,
+                defaultValue: Any? = nil,
+                isRequired: Bool = false,
+                documentation: String? = nil) {
         self.name = name
         self.type = type
         self.alias = alias
